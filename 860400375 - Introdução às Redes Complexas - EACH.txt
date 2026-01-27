@@ -1,0 +1,279 @@
+https://uspdigital.usp.br/apolo/apoObterCurso?cod_curso=860400375&cod_edicao=25003&numseqofeedi=1&id_periodo=&id_modalidade=
+
+Cursos e Atividades de Extensão
+
+860400375 - Introdução às Redes Complexas, com aplicações, utilizando Python e IA/LLM
+Atenção! As inscrições desse curso não são por ordem de chegada.
+
+Todas as inscrições realizadas durante o período de inscrições serão aceitas no sistema.
+Será realizado um sorteio de vagas no dia 20/01/2026.
+
+Unidade:
+Escola de Artes, Ciências e Humanidades
+Modalidade:
+Difusão
+Tipo:
+à Distância
+Público Alvo:
+O curso "Introdução às Redes Complexas" visa atender universitários e profissionais interessados em sistemas complexos. Oferece compreensão de como redes complexas influenciam tecnologia e as ciências, com abordagem prática e interativa.
+Objetivo:
+Ao final do curso, o estudante será capaz de compreender conceitos de redes complexas, identificar tipos de redes e suas propriedades, aplicar modelagem em Python para construir e analisar redes, e utilizar IA/LLM na implementação de exemplos práticos.
+Pré-requisito Graduação:
+Não
+ 	 
+Área de Conhecimento:
+Física Estatística e Termodinâmica
+ 	 
+
+Edição	25003
+Número do Oferecimento	1
+Período de Realização:	de 26/01/2026 até 29/01/2026
+Local do curso:	O curso será online, com streaming simultâneo pelo youtube.
+Vagas:	1000
+ 
+Inscrição	
+On-line:	de 15/12/2025 00:00 até 16/01/2026 23:59    (inscrever)
+Data do sorteio:	20/01/2026
+Atenção:
+As inscrições não são por ordem de chegada.
+
+Todas as inscrições realizadas durante o período de inscrições serão aceitas no sistema.
+Será realizado um sorteio de vagas no dia 20/01/2026.
+Procedimento de inscrição:	Realizar a inscrição no Sistema Apolo e anexar uma cópia do documento de identificação
+ 
+Conteúdos/Disciplinas	Introdução às Redes Complexas, com aplicações, utilizando Python e IA/LLM
+ 
+Responsáveis	
+Coordenador:	Camilo Rodrigues Neto
+Vice-Coordenador:	Masayuki Oka Hase
+ 
+Critérios de seleção:	O sorteio será realizado pelo sistema Apolo na data definida pela Unidade.
+Critérios de aprovação:	Para ser aprovado o aluno deverá assistir a 3 das 4 aulas. Mínimo 75% de frequência
+ 	 
+Curso	Gratuito
+Isenções:	
+ 	 
+Vagas gratuitas	
+ 
+Local de inscrição	
+Telefone:	(11)30919110
+Ramal:	
+Fax:	
+Contato:	Secretaria da CCEx
+Site:	https://www5.each.usp.br/cultura-e-extensao-ccex-nova/
+E-mail:	ccex-each@usp.br
+
+------------------
+
+140244 - Introdução às Redes Complexas, com aplicações, utilizando Python e IA/LLM
+
+Período da turma:	26/01/2026 a 29/01/2026
+
+Selecione um horário para exibir no calendário:
+Dia(s) de oferecimento
+ 
+Entrada
+ 
+Saída
+ 
+dom
+ 
+seg
+ 
+ter
+ 
+qua
+ 
+qui
+ 
+sex
+ 
+sab
+ 
+repetir a cada
+14:00	16:30	 	X	X	X	X	 	 	semana
+ 	
+<AnteriorPróximo>
+Janeiro 2026
+Dom	Seg	Ter	Qua	Qui	Sex	Sáb
+ 	 	 	 	
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+ 
+Descrição:	Dia 1: Introdução aos Sistemas Complexos
+Primeira Sessão (60 minutos):
+Apresentação do Curso e Objetivos
+Visão geral do conteúdo e metodologia.
+Expectativas e objetivos de aprendizagem.
+Conceitos Fundamentais de Sistemas Complexos
+Definição e características de sistemas complexos.
+Propriedades emergentes e comportamento coletivo.
+Exemplos de sistemas complexos em diversas áreas (biologia, economia, sociologia).
+
+Intervalo (20 minutos)
+Segunda Sessão (60 minutos):
+Introdução aos grafos
+Conceitos básicos: nós, arestas, grafos, distribuição de grau.
+Importância das redes complexas no estudo de sistemas interconectados.
+Exemplo Prático em Python:
+Objetivo: Criar e visualizar uma rede simples.
+Atividades:
+Introdução ao Python e à biblioteca NetworkX.
+Implementação de um grafo básico.
+Visualização da rede usando Matplotlib.
+Utilização de um modelo de IA (LLM) para auxiliar na codificação e
+esclarecimento de dúvidas.
+
+Dia 2: Redes Homogêneas
+Primeira Sessão (60 minutos):
+Redes Aleatórias Homogêneas
+Modelo de Erdős-Rényi e suas propriedades.
+Modelo de Watts-Strogatz e suas propriedades.
+Conceito de redes homogêneas.
+Propriedades Estatísticas
+Caminho mínimo médio.
+Coeficiente de aglomeração médio.
+
+Intervalo (20 minutos)
+Segunda Sessão (60 minutos):
+Exemplo Prático em Python:
+Objetivo: Construir e analisar uma rede de Erdős-Rényi.
+Atividades:
+Geração de uma rede aleatória usando NetworkX.
+Cálculo de propriedades estatísticas (grau médio, clusterização).
+Visualização da distribuição de grau.
+
+Interação com um modelo de IA (LLM) para otimizar o código e interpretar
+resultados.
+Dia 3: Redes Heterogêneas
+Primeira Sessão (60 minutos):
+Redes Aleatórias Heterogêneas
+Modelo de Barabási-Albert e crescimento preferencial.
+Redes livres de escala (“scale-free”)
+Importância dos hubs e impacto na robustez da rede.
+Distribuição de Grau em Redes Heterogêneas
+Lei de potência e suas implicações.
+Comparação com redes homogêneas.
+
+Intervalo (20 minutos)
+Segunda Sessão (60 minutos):
+Exemplo Prático em Python:
+Objetivo: Implementar o modelo de Barabási-Albert.
+Atividades:
+Criação de uma rede scale-free.
+Análise da distribuição de grau e identificação de hubs.
+Discussão sobre robustez e vulnerabilidade a falhas.
+Uso de um modelo de IA (LLM) para ajustar parâmetros e explorar variações do
+modelo.
+
+Dia 4: Aplicações de Redes Complexas
+Primeira Sessão (60 minutos):
+Redes em Contextos Reais
+Redes Sociais:
+Análise de conexões e influência.
+Fenômenos de viralização.
+Redes Biológicas:
+Interações proteína-proteína.
+Metabolismo e redes genéticas.
+Redes Tecnológicas:
+Estrutura da internet.
+Redes elétricas e de transporte.
+
+Discussão de Estudos de Caso
+Exemplos reais de aplicações bem-sucedidas de redes complexas.
+Desafios e oportunidades na análise de redes.
+
+Intervalo (20 minutos)
+Segunda Sessão (60 minutos):
+Exemplo Prático em Python:
+Objetivo: Simular a propagação de informação em uma rede social.
+Atividades:
+Implementação de modelos de propagação (e.g., modelo SIR).
+Configuração de cenários de difusão e análise de resultados.
+Visualização dinâmica da propagação na rede.
+Auxílio de um modelo de IA (LLM) para refinar a simulação e interpretar
+fenômenos observados.
+
+Encerramento do Curso
+
+Revisão dos principais conceitos abordados.
+Orientações para estudos futuros e recursos adicionais.
+Feedback dos alunos sobre o curso.
+
+Objetivos Específicos:
+Dia 1: Compreender os fundamentos dos sistemas complexos e a importância das redes
+complexas.
+Dia 2: Familiarizar-se com redes homogêneas e suas propriedades estatísticas.
+Dia 3: Entender as características das redes heterogêneas e seu impacto em sistemas reais.
+Dia 4: Aplicar os conhecimentos adquiridos em contextos práticos e reconhecer a relevância das
+redes complexas em diferentes áreas.
+
+Metodologia:
+Aulas Expositivas: Apresentação dos conceitos teóricos de forma acessível e interativa.
+Exemplos Práticos: Implementação em Python com suporte de modelos de IA (LLM) para
+demonstrar aplicações.
+Discussões em Grupo: Estímulo ao pensamento crítico e à troca de ideias entre os participantes.
+Recursos Didáticos: Slides, códigos fonte, referências bibliográficas e sugestões de leituras
+complementares.
+
+Recursos Necessários:
+
+Para os Professores:
+Computador com Python e bibliotecas necessárias instaladas (NetworkX, Matplotlib, etc.).
+Acesso a modelos de IA do tipo LLM para auxílio durante as implementações.
+
+Para os Alunos:
+Material didático (slides das aulas) disponibilizado pelos professores para reprodução dos exemplos em casa.
+Recomenda-se ter um ambiente Python configurado para práticas posteriores.
+
+Justificativa Adicional:
+A abordagem prática e o uso de modelos de IA visam não apenas facilitar o entendimento dos conceitos, mas também incentivar os alunos a explorarem ferramentas modernas que estão revolucionando a pesquisa e a análise de dados em redes complexas. O curso pretende ser um ponto de partida para aqueles que desejam se aprofundar no estudo de sistemas interconectados e suas aplicações.
+
+Observação:
+Embora o curso não inclua demonstrações matemáticas formais, os conceitos serão apresentados de maneira rigorosa, garantindo uma compreensão sólida dos temas abordados.
+Os softwares utilizados no curso são de livre ae bibliografia
+
+Bibliografia
+-Barabási, A. L., & Frangos, J. (2014). Linked: How everything is connected to everything else and what it means for business, science, and everyday life. Basic books.
+
+-Pósfai, M., & Barabási, A. L. (2016). Network science. Cambridge, UK:: Cambridge University Press.
+(versão online diponível sem custo em https://networksciencebook.com/)
+-Mitchell, M. (2009). Complexity: A guided tour. Oxford University Press.
+-Lu, Y., Aleta, A., Du, C., Shi, L., & Moreno, Y. (2024). LLMs and Generative Agent-Based Models for Complex Systems Research. Physics of Life Reviews.
+
+Carga Horária:	
+8 horas
+Tipo:	Obrigatória
+Vagas oferecidas:	1000
+ 
+Ministrantes:	Camilo Rodrigues Neto
+Masayuki Oka Hase

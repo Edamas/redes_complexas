@@ -1,0 +1,35 @@
+Aula 1 - Introdução às Redes Complexas - segunda, 26/1/2026, 14 h
+
+https://www.youtube.com/@camilorodriguesneto9357/live
+https://www.youtube.com/live/qzgSoFtH6xs?si=ER-NUwCVqi7sUVjt
+https://www.youtube.com/watch?v=xtuZByqVLNE
+
+365 assistindo agora  
+Transmissão iniciada há 41 minutos  Introdução às redes complexas, com aplicações utilizando Python e IA/LLM
+Introdução aos Sistemas Complexos: Definição e características de sistemas complexos,  Propriedades emergentes e comportamento coletivo, Exemplos de sistemas complexos em diversas áreas (biologia, economia, sociologia).
+
+Conheça o curso
+https://www.youtube.com/playlist?list=PLE7NJNyBGfgvitZIQMOtB8ULm2SjJqm9R
+
+Professores:
+    Camilo Rodrigues Neto
+    Masayuki Hase
+
+Pympress Content
+
+Aulas:
+    1- Modelagem de Sistemas Complexos
+    2- Redes Homogêneas
+        Modelo de Erdõs-Rényi e Watts-Strogatz
+    3- Redes Heterogêneas
+        Modelo de Barabási-Albert e Livres de Escala
+    4- Aplicação
+
+
+Apresentação
+    S. W. Hawking, A Brief History of Time (1988)
+    L. Susskind, The Black Hole War (2008)
+    R. Penrose, The Road to Reality (2004)
+
+
+    
