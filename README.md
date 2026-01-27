@@ -43,7 +43,7 @@ Uma aplicação web interativa construída com Streamlit para gerar, visualizar 
 Com o ambiente virtual ativado e as dependências instaladas, execute o seguinte comando:
 
 ```bash
-streamlit run "Aula 1 - 26-01-2026/redes_complexas_1.py"
+streamlit run app.py
 ```
 
 A aplicação será aberta automaticamente no seu navegador.
