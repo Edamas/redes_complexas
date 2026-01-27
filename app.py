@@ -7,8 +7,8 @@ import random
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 from scipy import stats
+import networkx as nx
 
 # ============================================================
 # TÍTULO E CABEÇALHO
@@ -29,14 +29,16 @@ NUM_NODES = st.sidebar.slider(
     min_value=10,
     max_value=2000,
     value=100,
-    step=10
+    step=10,
+    key="num_nodes"
 )
 EDGE_PROBABILITY = st.sidebar.slider(
     "Probabilidade de Conexão",
     min_value=0.0,
     max_value=1.0,
     value=0.1,
-    step=0.01
+    step=0.01,
+    key="edge_prob"
 )
 
 st.sidebar.header("Layout / Figura")
@@ -153,12 +155,16 @@ HIST_COLOR = st.sidebar.color_picker(
 )
 
 # ============================================================
-# GERAÇÃO DA REDE
+# FUNÇÕES DE GERAÇÃO E ANÁLISE DA REDE
 # ============================================================
 
 @st.cache_data
 def generate_network(num_nodes, edge_probability):
+    """Gera nós e arestas para uma rede aleatória e garante conectividade mínima."""
     nodes = list(range(num_nodes))
+    if edge_probability == 0:
+        return nodes, []
+        
     edges = [
         (i, j)
         for i in nodes
@@ -175,134 +181,192 @@ def generate_network(num_nodes, edge_probability):
 
     return nodes, edges
 
+def build_graph_from_data(nodes, edges):
+    """Constrói um objeto de grafo NetworkX."""
+    G = nx.Graph()
+    G.add_nodes_from(nodes)
+    G.add_edges_from(edges)
+    return G
+
+def calcular_caminho_minimo_medio(G):
+    """Calcula o caminho mínimo médio da rede. Retorna '∞' para grafos desconexos."""
+    if nx.is_connected(G):
+        return nx.average_shortest_path_length(G)
+    else:
+        return float('inf')
+
+def calcular_coeficiente_aglomeracao_medio(G):
+    """Calcula o coeficiente de aglomeração médio da rede."""
+    if not G.edges:
+        return 0.0
+    return nx.average_clustering(G)
+
+# ============================================================
+# GERAÇÃO E CÁLCULOS PRINCIPAIS
+# ============================================================
+
+# 1. Geração da Rede
 nodes, edges = generate_network(NUM_NODES, EDGE_PROBABILITY)
+G = build_graph_from_data(nodes, edges)
 
-# ============================================================
-# POSIÇÕES 3D
-# ============================================================
-
+# 2. Posições para visualização
 pos = np.random.randn(NUM_NODES, 3)
 
-# ============================================================
-# GRAUS DOS NÓS
-# ============================================================
+# 3. Métricas Estruturais
+L = calcular_caminho_minimo_medio(G)
+C = calcular_coeficiente_aglomeracao_medio(G)
 
-degrees = [0] * NUM_NODES
-for i, j in edges:
-    degrees[i] += 1
-    degrees[j] += 1
+# 4. Métricas de Grau
+degrees = [d for n, d in G.degree()]
+avg_degree = np.mean(degrees) if degrees else 0
 
 # ============================================================
-# TRACES DA REDE
+# VISUALIZAÇÃO (GRÁFICOS)
 # ============================================================
+st.header("Visualização da Rede")
 
+# --- Trace da Rede ---
 edge_x, edge_y, edge_z = [], [], []
 for i, j in edges:
-    edge_x += [pos[i, 0], pos[j, 0], None]
-    edge_y += [pos[i, 1], pos[j, 1], None]
-    edge_z += [pos[i, 2], pos[j, 2], None]
+    edge_x.extend([pos[i, 0], pos[j, 0], None])
+    edge_y.extend([pos[i, 1], pos[j, 1], None])
+    edge_z.extend([pos[i, 2], pos[j, 2], None])
 
 edge_trace = go.Scatter3d(
-    x=edge_x,
-    y=edge_y,
-    z=edge_z,
-    mode="lines",
-    opacity=EDGE_OPACITY,
-    line=dict(color=EDGE_COLOR, width=EDGE_WIDTH),
-    hoverinfo="none"
+    x=edge_x, y=edge_y, z=edge_z, mode="lines", opacity=EDGE_OPACITY,
+    line=dict(color=EDGE_COLOR, width=EDGE_WIDTH), hoverinfo="none"
 )
 
 node_mode = "markers+text" if SHOW_NODE_NAMES else "markers"
 if SHOW_NODE_NAMES:
-    if AUTONUMBER_NODES:
-        node_text = [f"{NODE_PREFIX}{i}" for i in nodes]
-    else:
-        node_text = [NODE_PREFIX] * NUM_NODES
+    node_text = [f"{NODE_PREFIX}{i}" for i in nodes] if AUTONUMBER_NODES else [NODE_PREFIX] * NUM_NODES
 else:
     node_text = None
 
-
 node_trace = go.Scatter3d(
-    x=pos[:, 0],
-    y=pos[:, 1],
-    z=pos[:, 2],
-    mode=node_mode,
-    opacity=NODE_OPACITY,
-    marker=dict(size=NODE_SIZE, color=NODE_COLOR),
-    text=node_text,
-    textposition="top center",
-    textfont=dict(size=NODE_FONT_SIZE)
+    x=pos[:, 0], y=pos[:, 1], z=pos[:, 2], mode=node_mode, opacity=NODE_OPACITY,
+    marker=dict(size=NODE_SIZE, color=NODE_COLOR), text=node_text,
+    textposition="top center", textfont=dict(size=NODE_FONT_SIZE)
 )
 
-# ============================================================
-# HISTOGRAMA
-# ============================================================
+# --- Trace do Histograma ---
+hist_trace = go.Histogram(x=degrees, nbinsx=HIST_BINS, marker=dict(color=HIST_COLOR))
 
-hist_trace = go.Histogram(
-    x=degrees,
-    nbinsx=HIST_BINS,
-    marker=dict(color=HIST_COLOR)
-)
-
-# ============================================================
-# FIGURA DA REDE
-# ============================================================
+# --- Figura da Rede ---
 fig_net = go.Figure(data=[edge_trace, node_trace])
-
 fig_net.update_layout(
-    title="Rede Complexa 3D",
-    height=NET_HEIGHT,
-    margin=dict(l=10, r=10, t=40, b=10),
-    showlegend=False,
-    scene=dict(
-        aspectmode="cube",
-        xaxis_visible=False,
-        yaxis_visible=False,
-        zaxis_visible=False
-    )
+    title="Rede Complexa 3D", height=NET_HEIGHT, margin=dict(l=10, r=10, t=40, b=10),
+    showlegend=False, scene=dict(aspectmode="cube", xaxis_visible=False, yaxis_visible=False, zaxis_visible=False)
 )
 
-# ============================================================
-# FIGURA DO HISTOGRAMA
-# ============================================================
+# --- Figura do Histograma ---
 fig_hist = go.Figure(data=[hist_trace])
-
 fig_hist.update_layout(
-    title="Distribuição de Graus",
-    height=HIST_HEIGHT,
-    margin=dict(l=40, r=20, t=40, b=40),
-    xaxis_title="Grau",
-    yaxis_title="Frequência",
-    font=dict(size=FONT_SIZE)
+    title="Distribuição de Graus", height=HIST_HEIGHT, margin=dict(l=40, r=20, t=40, b=40),
+    xaxis_title="Grau", yaxis_title="Frequência", font=dict(size=FONT_SIZE)
 )
 
-
-# ============================================================
-# EXIBIÇÃO DOS GRÁFICOS
-# ============================================================
+# --- Exibição ---
 col_net, col_hist = st.columns([COLUMN_RATIO, 100 - COLUMN_RATIO])
-
 with col_net:
-    st.plotly_chart(fig_net, width='stretch')
-
+    st.plotly_chart(fig_net, use_container_width=True)
 with col_hist:
-    st.plotly_chart(fig_hist, width='stretch')
+    st.plotly_chart(fig_hist, use_container_width=True)
 
+# ============================================================
+# ANÁLISE ESTATÍSTICA E ESTRUTURAL
+# ============================================================
+st.header("Análise Estrutural da Rede")
+
+# --- Diagnóstico Automático (Mundo Pequeno) ---
+st.subheader("Diagnóstico da Rede")
+
+is_connected = L != float('inf')
+if is_connected and avg_degree > 0:
+    C_rand = avg_degree / NUM_NODES
+    L_rand = np.log(NUM_NODES) / np.log(avg_degree)
+    
+    # Condições para ser mundo pequeno
+    is_highly_clustered = C > C_rand * 2 # Heurística: C é pelo menos 2x maior
+    is_short_path = L < L_rand * 2 # Heurística: L é no máximo 2x maior
+
+    if is_highly_clustered and is_short_path:
+        st.success("✅ **Diagnóstico:** A rede exibe fortes características de **Mundo Pequeno (Small-World)**.")
+        st.info("Isso significa que ela possui alta aglomeração local (seus amigos se conhecem) e, ao mesmo tempo, um caminho médio curto entre quaisquer dois nós (você está a poucos 'passos' de qualquer pessoa), similar a redes sociais como Facebook ou LinkedIn.")
+    elif is_highly_clustered:
+        st.warning("⚠️ **Diagnóstico:** A rede é **altamente clusterizada**, mas não necessariamente possui um caminho médio curto. Pode se assemelhar a uma rede regular ou de treliça.")
+    else:
+        st.warning("⚠️ **Diagnóstico:** A rede se assemelha a um **Grafo Aleatório (Erdos-Renyi)**, com baixa clusterização.")
+else:
+    st.error("❌ **Diagnóstico:** A rede está **desconexa ou é muito esparsa** para uma análise de mundo pequeno.")
+
+st.markdown("---")
+
+# --- Apresentação das Métricas ---
+st.subheader("Métricas Detalhadas")
+m_col1, m_col2 = st.columns(2)
+
+with m_col1:
+    st.metric(
+        label="Coeficiente de Aglomeração Médio (C)",
+        value=f"{C:.4f}"
+    )
+    with st.expander("O que isso significa?"):
+        st.markdown("""
+        O **Coeficiente de Aglomeração (ou Clustering)** mede a tendência dos nós em uma rede de formarem "grupinhos" ou "clusters".
+        - **Autoria:** Proposto por Duncan J. Watts e Steven Strogatz (1998).
+        - **Fórmula:** É a média dos coeficientes de aglomeração locais de todos os nós. O coeficiente local de um nó é a fração de conexões existentes entre seus vizinhos, dividida pelo número máximo de conexões possíveis entre eles.
+        - **Interpretação:** Um valor próximo de **1** indica que a vizinhança de um nó médio é quase um "clique" (todos se conhecem). Um valor próximo de **0** indica que os vizinhos de um nó raramente se conectam entre si.
+        - **Nesta Rede:** O valor de **`{:.4f}`** sugere que a rede tem uma tendência de clusterização {}.
+        """.format(C, "**relativamente alta**" if C > 0.5 else ("**moderada**" if C > 0.1 else "**baixa**")))
+
+with m_col2:
+    st.metric(
+        label="Caminho Mínimo Médio (L)",
+        value=f"{L:.4f}" if L != float('inf') else "∞"
+    )
+    with st.expander("O que isso significa?"):
+        st.markdown(f"""
+        Mede a distância média (número de "pulos") entre todos os pares de nós na rede. É uma medida de eficiência da rede em transportar informação.
+        - **Fórmula:** A média dos comprimentos dos caminhos mais curtos para todos os pares de nós.
+        - **Interpretação:** Um valor **baixo** indica uma rede altamente conectada e eficiente, onde se chega rapidamente de um ponto a outro. É a base dos "seis graus de separação". Redes desconexas têm um caminho infinito.
+        - **Nesta Rede:** Um caminho médio de **`{'%.4f' % L if L != float('inf') else '∞'}`** indica que, em média, são necessários cerca de **`{L:.1f}`** passos para ir de um nó a qualquer outro. Isso é considerado um caminho {}.
+        """.format(L, "**muito curto**" if L < np.log(NUM_NODES) else "**relativamente longo**" if not is_connected else ""))
+
+# --- Métricas de Grau ---
+st.subheader("Estatísticas da Distribuição de Graus")
+if degrees:
+    desc_stats = stats.describe(degrees)
+    d_col1, d_col2, d_col3 = st.columns(3)
+    with d_col1:
+        st.metric("Grau Médio", f"{desc_stats.mean:.2f}")
+    with d_col2:
+        st.metric("Grau Máximo", f"{desc_stats.minmax[1]}")
+    with d_col3:
+        st.metric("Variância do Grau", f"{desc_stats.variance:.2f}")
+    
+    with st.expander("Entenda as Estatísticas de Grau"):
+        st.markdown("""
+        A **distribuição de graus** é uma das propriedades mais fundamentais de uma rede.
+        - **Grau de um Nó:** O número de conexões que ele possui.
+        - **Grau Médio:** A média dos graus de todos os nós. Indica a densidade geral de conexões.
+        - **Grau Máximo:** O grau do nó mais conectado (o "hub" principal).
+        - **Variância do Grau:** Mede a dispersão dos graus. Um valor alto sugere uma rede heterogênea, com muitos nós de baixo grau e alguns hubs de alto grau (típico de redes "livres de escala" - Scale-Free). Um valor baixo indica que a maioria dos nós tem um número similar de conexões.
+        """)
+else:
+    st.warning("Não há dados de grau para calcular as estatísticas.")
 
 # ============================================================
 # DATAFRAME COM DADOS DOS NÓS
 # ============================================================
-
 st.subheader("Dados Detalhados dos Nós")
 
-# Generate node display names for the DataFrame
 if AUTONUMBER_NODES:
     node_display_names_for_df = [f"{NODE_PREFIX}{i}" for i in nodes]
 else:
     node_display_names_for_df = [NODE_PREFIX] * NUM_NODES
 
 node_data = {
-    "Nó ID": nodes,
     "Nome do Nó": node_display_names_for_df,
     "Grau": degrees,
     "Posição X": pos[:, 0],
@@ -310,32 +374,6 @@ node_data = {
     "Posição Z": pos[:, 2],
 }
 df = pd.DataFrame(node_data)
-df = df.set_index("Nó ID")
-df.index.name = "ID do Nó" # Set index name
+df.index.name = "ID do Nó"
 
 st.dataframe(df)
-
-# ============================================================
-# ESTATÍSTICAS DA REDE
-# ============================================================
-
-st.subheader("Estatísticas da Distribuição de Graus")
-
-if degrees:
-    desc_stats = stats.describe(degrees)
-    
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Contagem de Nós", f"{desc_stats.nobs}")
-        st.metric("Grau Médio", f"{desc_stats.mean:.2f}")
-    with col2:
-        st.metric("Grau Mínimo", f"{desc_stats.minmax[0]}")
-        st.metric("Grau Máximo", f"{desc_stats.minmax[1]}")
-    with col3:
-        st.metric("Variância", f"{desc_stats.variance:.2f}")
-        st.metric("Desvio Padrão", f"{np.sqrt(desc_stats.variance):.2f}")
-    with col4:
-        st.metric("Assimetria (Skewness)", f"{desc_stats.skewness:.2f}")
-        st.metric("Curtose (Kurtosis)", f"{desc_stats.kurtosis:.2f}")
-else:
-    st.warning("Não há dados de grau para calcular as estatísticas.")
