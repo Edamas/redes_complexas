@@ -326,12 +326,20 @@ with m_col2:
         value=f"{L:.4f}" if L != float('inf') else "∞"
     )
     with st.expander("O que isso significa?"):
+        # Determina a descrição do caminho com base na conectividade e no valor de L
+        if not is_connected:
+            path_description = "**infinito (rede desconexa)**"
+        elif L < np.log(NUM_NODES) and NUM_NODES > 1:
+            path_description = "**muito curto**"
+        else:
+            path_description = "**relativamente longo**"
+
         st.markdown(f"""
         Mede a distância média (número de "pulos") entre todos os pares de nós na rede. É uma medida de eficiência da rede em transportar informação.
         - **Fórmula:** A média dos comprimentos dos caminhos mais curtos para todos os pares de nós.
         - **Interpretação:** Um valor **baixo** indica uma rede altamente conectada e eficiente, onde se chega rapidamente de um ponto a outro. É a base dos "seis graus de separação". Redes desconexas têm um caminho infinito.
-        - **Nesta Rede:** Um caminho médio de **`{'%.4f' % L if L != float('inf') else '∞'}`** indica que, em média, são necessários cerca de **`{L:.1f}`** passos para ir de um nó a qualquer outro. Isso é considerado um caminho {}.
-        """.format(L, "**muito curto**" if L < np.log(NUM_NODES) else "**relativamente longo**" if not is_connected else ""))
+        - **Nesta Rede:** Um caminho médio de **`{'%.4f' % L if L != float('inf') else '∞'}`** indica que, em média, são necessários cerca de **`{L:.1f}`** passos para ir de um nó a qualquer outro. Isso é considerado um caminho {path_description}.
+        """)
 
 # --- Métricas de Grau ---
 st.subheader("Estatísticas da Distribuição de Graus")
