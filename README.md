@@ -18,7 +18,7 @@ Uma aplicação web interativa construída com Streamlit para gerar, visualizar 
 
 1.  **Clone o repositório:**
     ```bash
-    git clone <URL_DO_SEU_REPOSITÓRIO_AQUI>
+    git clone https://github.com/Edamas/redes_complexas.git
     cd simulador-redes-complexas-streamlit
     ```
 
