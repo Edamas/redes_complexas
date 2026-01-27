@@ -32,37 +32,41 @@ st.sidebar.header("2. Parâmetros do Modelo")
 
 # Parâmetros condicionais ao modelo
 if model_type == "Erdos-Renyi":
-    N = st.sidebar.slider("Número de Nós (N)", 5, 1000, 100, 5)
-    P_ER = st.sidebar.slider("Probabilidade de Conexão (p)", 0.0, 1.0, 0.1, 0.01)
-    K_WS, P_WS = None, None
+    N = st.sidebar.slider("Número de Nós (N)", 5, 1000, 100, 5, key="er_n")
+    P_ER = st.sidebar.slider("Probabilidade de Conexão (p)", 0.0, 1.0, 0.1, 0.01, key="er_p")
+    G = nx.erdos_renyi_graph(N, P_ER)
 else: # Watts-Strogatz
-    N = st.sidebar.slider("Número de Nós (eNG)", 5, 1000, 20, 5)
+    N = st.sidebar.slider("Número de Nós (eNG)", 5, 1000, 20, 5, key="ws_n")
     K_WS = st.sidebar.slider("Nº de Vizinhos Próximos (k)", 2, 20, 4, 2, help="Cada nó se conecta aos 'k' vizinhos mais próximos no anel inicial. Deve ser um número par.")
     P_WS = st.sidebar.slider("Probabilidade de Reconexão (ePG)", 0.0, 1.0, 0.2, 0.01, help="Probabilidade de 'religar' uma aresta, introduzindo aleatoriedade.")
-    P_ER = None
+    # Garante que k seja par e menor que n para evitar erros
+    k_ws_safe = max(2, K_WS if K_WS % 2 == 0 else K_WS - 1)
+    if k_ws_safe >= N: k_ws_safe = max(2, N - 2)
+    G = nx.watts_strogatz_graph(N, k_ws_safe, P_WS)
+
 
 st.sidebar.header("3. Parâmetros de Visualização")
 layout_dim = st.sidebar.selectbox("Dimensão", ("3D", "2D"))
 layout_type = st.sidebar.selectbox(
     "Algoritmo de Layout",
-    ("Aleatório", "Circular/Esférico", "Shell", "Spring (Física)")
+    ("Spring (Física)", "Circular/Esférico", "Shell", "Aleatório")
 )
-if layout_type in ["Circular/Esférico", "Shell"]:
+if layout_type in ["Circular/Esférico", "Shell"] and layout_dim == "3D":
     layout_dist = st.sidebar.selectbox("Distribuição", ("Superfície", "Volume"))
 else:
-    layout_dist = None
+    layout_dist = "Superfície" # Padrão para outros casos
 
 # Controles de aparência
 st.sidebar.subheader("Aparência dos Nós")
 col1, col2 = st.sidebar.columns(2)
-NODE_COLOR = col1.color_picker("Cor", value="#1f77b4")
-NODE_OPACITY = col2.slider("Opacidade", 0.0, 1.0, 0.9, 0.05)
+NODE_COLOR = col1.color_picker("Cor", value="#1f77b4", key="node_color")
+NODE_OPACITY = col2.slider("Opacidade", 0.0, 1.0, 0.9, 0.05, key="node_opacity")
 NODE_SIZE = st.sidebar.slider("Tamanho do Nó", 1, 30, 8, 1)
 
 st.sidebar.subheader("Aparência das Arestas")
 col3, col4 = st.sidebar.columns(2)
-EDGE_COLOR = col3.color_picker("Cor", value="#888888")
-EDGE_OPACITY = col4.slider("Opacidade", 0.0, 1.0, 0.5, 0.05)
+EDGE_COLOR = col3.color_picker("Cor", value="#888888", key="edge_color")
+EDGE_OPACITY = col4.slider("Opacidade", 0.0, 1.0, 0.5, 0.05, key="edge_opacity")
 EDGE_WIDTH = st.sidebar.slider("Largura da Aresta", 1, 10, 2, 1)
 
 st.sidebar.subheader("Rótulos dos Nós")
@@ -73,50 +77,46 @@ if SHOW_NODE_NAMES:
     AUTONUMBER_NODES = st.sidebar.checkbox("Autonumerar", value=True)
 
 # ============================================================ 
-# FUNÇÕES DE GERAÇÃO E ANÁLISE 
+# FUNÇÕES DE GERAÇÃO DE LAYOUT E DESENHO 
 # ============================================================ 
 
 @st.cache_data
-def generate_network(model, n, p_er, k_ws, p_ws):
-    """Gera um grafo NetworkX com base no modelo e parâmetros selecionados."""
-    if model == "Erdos-Renyi":
-        return nx.erdos_renyi_graph(n, p_er)
-    elif model == "Watts_Strogatz":
-        # Garante que k seja par e menor que n
-        k_ws = max(2, k_ws if k_ws % 2 == 0 else k_ws - 1)
-        if k_ws >= n: k_ws = n - 2
-        return nx.watts_strogatz_graph(n, k_ws, p_ws)
-
-def generate_layout(G, dim, l_type, l_dist):
+def generate_layout(_G, dim, l_type, l_dist):
     """Gera as posições dos nós com base nos parâmetros de layout."""
-    n = len(G.nodes)
+    n = len(_G.nodes)
+    if n == 0: return {}
+
+    d = int(dim[0])
+
     if l_type == "Aleatório":
-        return nx.random_layout(G, dim=int(dim[0]))
+        return nx.random_layout(_G, dim=d)
     
     if l_type == "Circular/Esférico":
         if dim == "3D":
             if l_dist == "Volume":
-                # Amostragem uniforme dentro de uma esfera
                 vec = np.random.randn(3, n)
                 vec /= np.linalg.norm(vec, axis=0)
                 r = np.random.rand(n) ** (1/3)
                 pos_arr = (vec * r).T
                 return {i: pos_arr[i] for i in range(n)}
             else: # Superfície
-                return nx.layout.spherical_layout(G)
+                return nx.spherical_layout(_G) # FIX: chamada correta da função
         else: # 2D
-             return nx.layout.circular_layout(G)
+             return nx.circular_layout(_G)
 
     if l_type == "Shell":
         n_shells = int(np.ceil(np.sqrt(n/4)))
-        shells = [list(range(sum(2**i for i in range(j)), sum(2**i for i in range(j+1)))) for j in range(n_shells)]
-        shells[-1].extend(range(max(shells[-1]) + 1, n))
-        return nx.shell_layout(G, shells=shells)
+        shells_list = [list(range(sum(2**i for i in range(j)), sum(2**i for i in range(j+1)))) for j in range(n_shells)]
+        if shells_list:
+            shells_list[-1].extend(range(max(shells_list[-1] or [0]) + 1, n))
+        else:
+            shells_list = [list(range(n))]
+        return nx.shell_layout(_G, nlist=shells_list) # FIX: usar nlist em vez de shells
 
     if l_type == "Spring (Física)":
-        return nx.spring_layout(G, dim=int(dim[0]))
+        return nx.spring_layout(_G, dim=d)
 
-    return nx.random_layout(G, dim=int(dim[0])) # Fallback
+    return nx.random_layout(_G, dim=d) # Fallback
 
 def draw_network(G, pos, dim):
     """Desenha a rede em 2D ou 3D usando Plotly."""
@@ -149,7 +149,6 @@ def draw_network(G, pos, dim):
         node_trace = go.Scatter(x=node_x, y=node_y, mode='markers+text' if SHOW_NODE_NAMES else 'markers',
                                 marker=dict(size=NODE_SIZE, color=NODE_COLOR, opacity=NODE_OPACITY), hoverinfo='text')
     
-    # Rótulos dos Nós
     if SHOW_NODE_NAMES:
         node_trace.text = [f"{NODE_PREFIX}{i}" for i in G.nodes()] if AUTONUMBER_NODES else [NODE_PREFIX] * len(G.nodes())
         node_trace.textfont = dict(size=NODE_FONT_SIZE)
@@ -157,26 +156,27 @@ def draw_network(G, pos, dim):
     
     fig = go.Figure(data=[edge_trace, node_trace])
     fig.update_layout(showlegend=False, margin=dict(l=10, r=10, t=20, b=10))
-    fig.update_xaxes(showticklabels=False, showgrid=False, zeroline=False)
-    fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=False)
+    
+    # FIX: Garantir proporção (Aspect Ratio)
     if dim == "3D":
-        fig.update_scenes(xaxis_visible=False, yaxis_visible=False, zaxis_visible=False)
-
+        fig.update_scenes(aspectmode='cube')
+    else:
+        fig.update_yaxes(scaleanchor="x", scaleratio=1)
+    
+    fig.update_xaxes(showticklabels=False, showgrid=False, zeroline=False, visible=False)
+    fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=False, visible=False)
+    
     return fig
 
 # ============================================================ 
 # CÁLCULOS E VISUALIZAÇÃO PRINCIPAL 
 # ============================================================ 
 
-# 1. Geração da Rede
-G = generate_network(model_type, N, P_ER, K_WS, P_WS)
-nodes = list(G.nodes())
-edges = list(G.edges())
-
-# 2. Posições para visualização
+# 1. Posições para visualização
 pos = generate_layout(G, layout_dim, layout_type, layout_dist)
 
-# 3. Métricas
+# 2. Métricas
+nodes = list(G.nodes())
 degrees = [d for n, d in G.degree()]
 avg_degree = np.mean(degrees) if degrees else 0
 is_connected = nx.is_connected(G)
@@ -185,10 +185,10 @@ C = nx.average_clustering(G) if nodes else 0.0
 
 # --- Desenho da Rede e Histograma ---
 st.header("Visualização da Rede")
-col_vis1, col_vis2 = st.columns([7, 3]) # Colunas para os gráficos
+col_vis1, col_vis2 = st.columns([7, 3]) 
 
 with col_vis1:
-    st.subheader(f"Modelo: {model_type} ({layout_dim})")
+    st.subheader(f"Modelo: {model_type} ({layout_dim}, {layout_type})")
     fig_net = draw_network(G, pos, layout_dim)
     st.plotly_chart(fig_net, use_container_width=True)
 
@@ -205,8 +205,7 @@ st.markdown("---")
 st.header("Análise Estrutural da Rede")
 
 # --- Diagnóstico ---
-if G.number_of_nodes() > 1 and G.number_of_edges() > 0:
-    # Heurística para Mundo Pequeno
+if G.number_of_nodes() > 2 and G.number_of_edges() > 1 and avg_degree > 1:
     try:
         C_rand = avg_degree / N
         L_rand = np.log(N) / np.log(avg_degree)
@@ -222,43 +221,53 @@ else:
     st.error("❌ **Diagnóstico:** Rede vazia ou trivial demais para análise.")
 
 # --- Métricas ---
+st.subheader("Métricas Detalhadas")
 m_col1, m_col2 = st.columns(2)
-m_col1.metric("Coeficiente de Aglomeração Médio (C)", f"{C:.4f}")
-m_col2.metric("Caminho Mínimo Médio (L)", f"{L:.4f}" if is_connected else "∞")
+with m_col1:
+    st.metric("Coeficiente de Aglomeração Médio (C)", f"{C:.4f}")
+    with st.expander("Entenda o Coeficiente de Aglomeração (C)"):
+        st.markdown("- **O que é?** Mede a tendência dos nós de formarem 'panelinhas'.\n- **Interpretação:** Um valor alto (próximo de 1) significa que os vizinhos de um nó tendem a ser vizinhos entre si. Um valor baixo (próximo de 0) indica o contrário.")
+with m_col2:
+    st.metric("Caminho Mínimo Médio (L)", f"{L:.4f}" if is_connected else "∞")
+    with st.expander("Entenda o Caminho Mínimo Médio (L)"):
+        st.markdown("- **O que é?** Mede a eficiência da rede, ou o número médio de 'passos' para ir de um nó a qualquer outro.\n- **Interpretação:** Um valor baixo indica uma rede eficiente. Um valor '∞' indica que a rede está quebrada em partes desconexas.")
 
-with st.expander("Entenda as Métricas Principais (C e L)"):
-    st.markdown("""
-    - **Coeficiente de Aglomeração (C):** Mede a formação de "panelinhas". Um valor alto (próximo de 1) significa que os vizinhos de um nó tendem a ser vizinhos entre si.
-    - **Caminho Mínimo Médio (L):** Mede a eficiência da rede. Um valor baixo significa que se leva poucos "passos" para ir de um nó a qualquer outro.
-    """)
-
-st.subheader("Estatísticas da Distribuição de Graus")
-if degrees:
-    desc_stats = stats.describe(degrees)
+# FIX: Restaurar métricas com expanders individuais
+desc_stats = stats.describe(degrees) if degrees else None
+if desc_stats:
+    st.subheader("Estatísticas da Distribuição de Graus")
     d_col1, d_col2, d_col3, d_col4, d_col5 = st.columns(5)
-    d_col1.metric("Nº de Nós", f"{desc_stats.nobs}")
-    d_col2.metric("Grau Médio", f"{desc_stats.mean:.2f}")
-    d_col3.metric("Grau (Min-Max)", f"{desc_stats.minmax[0]}-{desc_stats.minmax[1]}")
-    d_col4.metric("Assimetria", f"{desc_stats.skewness:.2f}")
-    d_col5.metric("Curtose", f"{desc_stats.kurtosis:.2f}")
-else:
-    st.warning("Rede vazia, sem graus para analisar.")
+    with d_col1:
+        st.metric("Nº de Nós", f"{desc_stats.nobs}")
+        with st.expander("Sobre 'Nº de Nós'"):
+            st.markdown("O número total de vértices (pontos) na sua rede.")
+    with d_col2:
+        st.metric("Grau Médio", f"{desc_stats.mean:.2f}")
+        with st.expander("Sobre 'Grau Médio'"):
+            st.markdown("O número médio de conexões (arestas) que cada nó possui. Uma medida de densidade.")
+    with d_col3:
+        st.metric("Grau (Min-Max)", f"{desc_stats.minmax[0]}-{desc_stats.minmax[1]}")
+        with st.expander("Sobre 'Grau (Min-Max)'"):
+            st.markdown("Mostra o grau do nó menos conectado e do nó mais conectado (o 'hub' principal).")
+    with d_col4:
+        st.metric("Assimetria (Skewness)", f"{desc_stats.skewness:.2f}")
+        with st.expander("Sobre 'Assimetria'"):
+            st.markdown("Mede a assimetria da distribuição de graus. **> 0:** A maioria dos nós tem grau baixo. **< 0:** A maioria dos nós tem grau alto.")
+    with d_col5:
+        st.metric("Curtose (Kurtosis)", f"{desc_stats.kurtosis:.2f}")
+        with st.expander("Sobre 'Curtose'"):
+            st.markdown("Mede o quão 'pesada' é a cauda da distribuição. Um valor alto indica uma grande presença de outliers (hubs muito fortes).")
 
 # ============================================================ 
 # DATAFRAME 
 # ============================================================ 
 st.subheader("Dados Detalhados dos Nós")
-df = pd.DataFrame({
-    "Grau": dict(G.degree()),
-    "Coef. Aglomeração": nx.clustering(G),
-})
-df.index.name = "ID do Nó"
-st.dataframe(df)
-
-# ============================================================ 
-# PUSH PARA GITHUB 
-# ============================================================ 
-# Lembre-se de fazer o commit e push das alterações para o GitHub
-# git add app.py requirements.txt
-# git commit -m "feat: Adiciona modelo Watts-Strogatz e layouts avançados"
-# git push
+if G.number_of_nodes() > 0:
+    df = pd.DataFrame({
+        "Grau": dict(G.degree()),
+        "Coef. Aglomeração": nx.clustering(G),
+    })
+    df.index.name = "ID do Nó"
+    st.dataframe(df)
+else:
+    st.warning("Rede vazia. Não há dados para exibir.")
