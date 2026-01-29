@@ -50,7 +50,7 @@ initialize_session_state()
 # Adiciona um link para a página de configurações na sidebar
 st.sidebar.header("Navegação")
 st.sidebar.info("Use o menu acima para navegar entre as páginas de **Simulação**, **Configurações** e **Sobre**.")
-st.sidebar.page_link("pages/1_Configuracoes.py", label="Ir para Configurações")
+
 
 
 # ============================================================ 
