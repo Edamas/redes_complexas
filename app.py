@@ -259,15 +259,21 @@ def about_page():
 # ============================================================
 # NAVEGAÇÃO PRINCIPAL E EXECUÇÃO DA PÁGINA SELECIONADA
 # ============================================================
-PAGES = {
-    "Simulação": simulation_page,
-    "Configurações": config_page,
-    "Sobre": about_page
-}
+PAGES_REGISTRY = [
+    {"name": "Simulação", "icon": "📈", "function": simulation_page},
+    {"name": "Configurações", "icon": "⚙️", "function": config_page},
+    {"name": "Sobre", "icon": "ℹ️", "function": about_page},
+]
 
-st.sidebar.header("Navegação")
-selection = st.sidebar.radio("Escolha uma página:", list(PAGES.keys()))
+# Display the selectbox in the sidebar
+selected_page_name = st.sidebar.selectbox(
+    "Navegação",
+    options=[page["name"] for page in PAGES_REGISTRY],
+    format_func=lambda name: f"{next(p['icon'] for p in PAGES_REGISTRY if p['name'] == name)} {name}"
+)
 
-# Executar a página selecionada
-page = PAGES[selection]
-page()
+# Find and run the selected page function
+for page_info in PAGES_REGISTRY:
+    if page_info["name"] == selected_page_name:
+        page_info["function"]()
+        break
